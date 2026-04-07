@@ -1,0 +1,2286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Block 2 Points + Intersections + Edges (Leaflet)</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #map { height: 100%; width: 100%; }
+
+    /* numbered marker */
+    .num-marker {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font: 700 13px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      border: 2px solid #111;
+      box-shadow: 0 1px 4px rgba(0,0,0,.25);
+      user-select: none;
+    }
+    .num-marker.pole { background: #ffffff; }
+    .num-marker.intersection { background: #ffe08a; }
+
+    /* optional: make edge lines crisp */
+    .leaflet-interactive { stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <script>
+    // Your GeoJSON (points + intersections + edges)
+    const geojson = {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 1,
+        "lat": 8.23242657906238,
+        "lon": 124.23732806769974,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23732806769974,
+          8.23242657906238
+        ]
+      }
+    },
+    {
+  "type": "Feature",
+  "properties": {
+    "BLOCK": 5,
+    "id": "I9",
+    "lat": 8.23305104161203,
+    "lon": 124.2384490312803,
+    "kind": "intersection",
+    "type": "intersection"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      124.2384490312803,
+      8.23305104161203
+    ]
+  }
+},
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 2,
+        "lat": 8.232295994277308,
+        "lon": 124.23732130132022,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23732130132022,
+          8.232295994277308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 3,
+        "lat": 8.232109603953942,
+        "lon": 124.23731002402103,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23731002402103,
+          8.232109603953942
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 4,
+        "lat": 8.232093978413875,
+        "lon": 124.2374318188522,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.2374318188522,
+          8.232093978413875
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 5,
+        "lat": 8.23202366347589,
+        "lon": 124.23802951570876,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23802951570876,
+          8.23202366347589
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 6,
+        "lat": 8.232341754761215,
+        "lon": 124.23839038932194,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23839038932194,
+          8.232341754761215
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 7,
+        "lat": 8.23253707384565,
+        "lon": 124.23858210340802,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23858210340802,
+          8.23253707384565
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 8,
+        "lat": 8.232756947224873,
+        "lon": 124.23854939924222,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23854939924222,
+          8.232756947224873
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 9,
+        "lat": 8.23292324730566,
+        "lon": 124.23850654550535,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23850654550535,
+          8.23292324730566
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 10,
+        "lat": 8.233123030534818,
+        "lon": 124.2385178228053,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.2385178228053,
+          8.233123030534818
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 11,
+        "lat": 8.23320115802602,
+        "lon": 124.23859901935938,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23859901935938,
+          8.23320115802602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 12,
+        "lat": 8.233280401608477,
+        "lon": 124.23873096375982,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23873096375982,
+          8.233280401608477
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 13,
+        "lat": 8.232979052689243,
+        "lon": 124.2383802397553,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.2383802397553,
+          8.232979052689243
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 14,
+        "lat": 8.23268105186145,
+        "lon": 124.23812988370051,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23812988370051,
+          8.23268105186145
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 15,
+        "lat": 8.232617433679076,
+        "lon": 124.23798891746075,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23798891746075,
+          8.232617433679076
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 16,
+        "lat": 8.232503590590388,
+        "lon": 124.23789982679725,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23789982679725,
+          8.232503590590388
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 17,
+        "lat": 8.232466758991313,
+        "lon": 124.237773521028,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.237773521028,
+          8.232466758991313
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 18,
+        "lat": 8.232381934699982,
+        "lon": 124.23770247404319,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23770247404319,
+          8.232381934699982
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 19,
+        "lat": 8.232429927393369,
+        "lon": 124.23753782547516,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23753782547516,
+          8.232429927393369
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 20,
+        "lat": 8.232464526775827,
+        "lon": 124.23737204917173,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23737204917173,
+          8.232464526775827
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 21,
+        "lat": 8.232593995396707,
+        "lon": 124.23744196842667,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23744196842667,
+          8.232593995396707
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 22,
+        "lat": 8.232619665894093,
+        "lon": 124.23750512130206,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23750512130206,
+          8.232619665894093
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 23,
+        "lat": 8.232775218028603,
+        "lon": 124.23756061531805,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23756061531805,
+          8.232775218028603
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 24,
+        "lat": 8.23289334626051,
+        "lon": 124.23764644600239,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23764644600239,
+          8.23289334626051
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 25,
+        "lat": 8.232873437012142,
+        "lon": 124.23739565946967,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23739565946967,
+          8.232873437012142
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 26,
+        "lat": 8.233019438156305,
+        "lon": 124.23726557233879,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23726557233879,
+          8.233019438156305
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 27,
+        "lat": 8.233067220337238,
+        "lon": 124.23745600916959,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23745600916959,
+          8.233067220337238
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 28,
+        "lat": 8.233187702147957,
+        "lon": 124.23750283839337,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23750283839337,
+          8.233187702147957
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 29,
+        "lat": 8.233340339585341,
+        "lon": 124.23752966048222,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23752966048222,
+          8.233340339585341
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 30,
+        "lat": 8.23331113938703,
+        "lon": 124.23787432433271,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23787432433271,
+          8.23331113938703
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 31,
+        "lat": 8.233194338562061,
+        "lon": 124.2379185807793,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.2379185807793,
+          8.233194338562061
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 32,
+        "lat": 8.233084174116021,
+        "lon": 124.23803123355246,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23803123355246,
+          8.233084174116021
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 33,
+        "lat": 8.233007191713854,
+        "lon": 124.23808219552129,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23808219552129,
+          8.233007191713854
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 34,
+        "lat": 8.232875790682476,
+        "lon": 124.23810097098347,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23810097098347,
+          8.232875790682476
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 35,
+        "lat": 8.233045682916808,
+        "lon": 124.23815997957895,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23815997957895,
+          8.233045682916808
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 36,
+        "lat": 8.23310010150644,
+        "lon": 124.23833298207306,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23833298207306,
+          8.23310010150644
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 37,
+        "lat": 8.233254066259695,
+        "lon": 124.23831152440196,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23831152440196,
+          8.233254066259695
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 38,
+        "lat": 8.233327066768325,
+        "lon": 124.23840808392181,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23840808392181,
+          8.233327066768325
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 39,
+        "lat": 8.233308484821961,
+        "lon": 124.23825788022427,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23825788022427,
+          8.233308484821961
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 40,
+        "lat": 8.233398739981896,
+        "lon": 124.23818546058438,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.23818546058438,
+          8.233398739981896
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": 41,
+        "lat": 8.233490322402567,
+        "lon": 124.2381130409445,
+        "kind": "pole",
+        "type": "pole"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          124.2381130409445,
+          8.233490322402567
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": "I1",
+        "lat": 8.233684210563965,
+        "lon": 124.23777017477659,
+        "kind": "intersection",
+        "type": "intersection"
+      },
+      "geometry": {
+        "coordinates": [
+          124.23777017477659,
+          8.233684210563965
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": "I2",
+        "lat": 8.23343402697681,
+        "lon": 124.23760531225014,
+        "kind": "intersection",
+        "type": "intersection"
+      },
+      "geometry": {
+        "coordinates": [
+          124.23760531225014,
+          8.23343402697681
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": "I3",
+        "lat": 8.232991673001223,
+        "lon": 124.23742579527777,
+        "kind": "intersection",
+        "type": "intersection"
+      },
+      "geometry": {
+        "coordinates": [
+          124.23742579527777,
+          8.232991673001223
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": "I4",
+        "lat": 8.232620022762973,
+        "lon": 124.2373268777614,
+        "kind": "intersection",
+        "type": "intersection"
+      },
+      "geometry": {
+        "coordinates": [
+          124.2373268777614,
+          8.232620022762973
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": "I5",
+        "lat": 8.232106719000768,
+        "lon": 124.23719722815292,
+        "kind": "intersection",
+        "type": "intersection"
+      },
+      "geometry": {
+        "coordinates": [
+          124.23719722815292,
+          8.232106719000768
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": "I6",
+        "lat": 8.23235636999803,
+        "lon": 124.23779771762457,
+        "kind": "intersection",
+        "type": "intersection"
+      },
+      "geometry": {
+        "coordinates": [
+          124.23779771762457,
+          8.23235636999803
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": "I7",
+        "lat": 8.233114159228975,
+        "lon": 124.2379137973727,
+        "kind": "intersection",
+        "type": "intersection"
+      },
+      "geometry": {
+        "coordinates": [
+          124.2379137973727,
+          8.233114159228975
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "id": "I8",
+        "lat": 8.232959508482978,
+        "lon": 124.23774860696074,
+        "kind": "intersection",
+        "type": "intersection"
+      },
+      "geometry": {
+        "coordinates": [
+          124.23774860696074,
+          8.232959508482978
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "I5",
+        "v": "3",
+        "cost_m": 12.42
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23719722815292,
+            8.232106719000768
+          ],
+          [
+            124.23731002402103,
+            8.232109603953942
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "3",
+        "v": "4",
+        "cost_m": 13.52
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23731002402103,
+            8.232109603953942
+          ],
+          [
+            124.2374318188522,
+            8.232093978413875
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "4",
+        "v": "5",
+        "cost_m": 66.24
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.2374318188522,
+            8.232093978413875
+          ],
+          [
+            124.23802951570876,
+            8.23202366347589
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "5",
+        "v": "6",
+        "cost_m": 53.18
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23802951570876,
+            8.23202366347589
+          ],
+          [
+            124.23839038932194,
+            8.232341754761215
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "6",
+        "v": "7",
+        "cost_m": 30.28
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23839038932194,
+            8.232341754761215
+          ],
+          [
+            124.23858210340802,
+            8.23253707384565
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "7",
+        "v": "8",
+        "cost_m": 24.71
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23858210340802,
+            8.23253707384565
+          ],
+          [
+            124.23854939924222,
+            8.232756947224873
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "8",
+        "v": "9",
+        "cost_m": 19.08
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23854939924222,
+            8.232756947224873
+          ],
+          [
+            124.23850654550535,
+            8.23292324730566
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "9",
+        "v": "13",
+        "cost_m": 15.22
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23850654550535,
+            8.23292324730566
+          ],
+          [
+            124.2383802397553,
+            8.232979052689243
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "13",
+        "v": "10",
+        "cost_m": 22.04
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.2383802397553,
+            8.232979052689243
+          ],
+          [
+            124.2385178228053,
+            8.233123030534818
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "10",
+        "v": "11",
+        "cost_m": 12.46
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.2385178228053,
+            8.233123030534818
+          ],
+          [
+            124.23859901935938,
+            8.23320115802602
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "11",
+        "v": "12",
+        "cost_m": 16.98
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23859901935938,
+            8.23320115802602
+          ],
+          [
+            124.23873096375982,
+            8.233280401608477
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "13",
+        "v": "36",
+        "cost_m": 14.43
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.2383802397553,
+            8.232979052689243
+          ],
+          [
+            124.23833298207306,
+            8.23310010150644
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "36",
+        "v": "37",
+        "cost_m": 17.28
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23833298207306,
+            8.23310010150644
+          ],
+          [
+            124.23831152440196,
+            8.233254066259695
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "37",
+        "v": "38",
+        "cost_m": 13.37
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23831152440196,
+            8.233254066259695
+          ],
+          [
+            124.23840808392181,
+            8.233327066768325
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "37",
+        "v": "39",
+        "cost_m": 8.45
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23831152440196,
+            8.233254066259695
+          ],
+          [
+            124.23825788022427,
+            8.233308484821961
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "39",
+        "v": "40",
+        "cost_m": 12.82
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23825788022427,
+            8.233308484821961
+          ],
+          [
+            124.23818546058438,
+            8.233398739981896
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "40",
+        "v": "41",
+        "cost_m": 12.93
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23818546058438,
+            8.233398739981896
+          ],
+          [
+            124.2381130409445,
+            8.233490322402567
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "41",
+        "v": "I1",
+        "cost_m": 43.46
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.2381130409445,
+            8.233490322402567
+          ],
+          [
+            124.23777017477659,
+            8.233684210563965
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "36",
+        "v": "35",
+        "cost_m": 19.98
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23833298207306,
+            8.23310010150644
+          ],
+          [
+            124.23815997957895,
+            8.233045682916808
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "35",
+        "v": "33",
+        "cost_m": 9.57
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23815997957895,
+            8.233045682916808
+          ],
+          [
+            124.23808219552129,
+            8.233007191713854
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "33",
+        "v": "32",
+        "cost_m": 10.23
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23808219552129,
+            8.233007191713854
+          ],
+          [
+            124.23803123355246,
+            8.233084174116021
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "32",
+        "v": "I7",
+        "cost_m": 13.35
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23803123355246,
+            8.233084174116021
+          ],
+          [
+            124.2379137973727,
+            8.233114159228975
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "I7",
+        "v": "31",
+        "cost_m": 8.93
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.2379137973727,
+            8.233114159228975
+          ],
+          [
+            124.2379185807793,
+            8.233194338562061
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "32",
+        "v": "31",
+        "cost_m": 17.43
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23803123355246,
+            8.233084174116021
+          ],
+          [
+            124.2379185807793,
+            8.233194338562061
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "31",
+        "v": "30",
+        "cost_m": 13.87
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.2379185807793,
+            8.233194338562061
+          ],
+          [
+            124.23787432433271,
+            8.23331113938703
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "30",
+        "v": "I2",
+        "cost_m": 32.61
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23787432433271,
+            8.23331113938703
+          ],
+          [
+            124.23760531225014,
+            8.23343402697681
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "33",
+        "v": "14",
+        "cost_m": 36.64
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23808219552129,
+            8.233007191713854
+          ],
+          [
+            124.23812988370051,
+            8.23268105186145
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "14",
+        "v": "15",
+        "cost_m": 17.05
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23812988370051,
+            8.23268105186145
+          ],
+          [
+            124.23798891746075,
+            8.232617433679076
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "15",
+        "v": "16",
+        "cost_m": 16.01
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23798891746075,
+            8.232617433679076
+          ],
+          [
+            124.23789982679725,
+            8.232503590590388
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "16",
+        "v": "I6",
+        "cost_m": 19.86
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23789982679725,
+            8.232503590590388
+          ],
+          [
+            124.23779771762457,
+            8.23235636999803
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "16",
+        "v": "17",
+        "cost_m": 14.49
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23789982679725,
+            8.232503590590388
+          ],
+          [
+            124.237773521028,
+            8.232466758991313
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "17",
+        "v": "18",
+        "cost_m": 12.25
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.237773521028,
+            8.232466758991313
+          ],
+          [
+            124.23770247404319,
+            8.232381934699982
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "I6",
+        "v": "18",
+        "cost_m": 10.86
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23779771762457,
+            8.23235636999803
+          ],
+          [
+            124.23770247404319,
+            8.232381934699982
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "18",
+        "v": "19",
+        "cost_m": 18.89
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23770247404319,
+            8.232381934699982
+          ],
+          [
+            124.23753782547516,
+            8.232429927393369
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "19",
+        "v": "20",
+        "cost_m": 18.64
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23753782547516,
+            8.232429927393369
+          ],
+          [
+            124.23737204917173,
+            8.232464526775827
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "20",
+        "v": "I4",
+        "cost_m": 17.99
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23737204917173,
+            8.232464526775827
+          ],
+          [
+            124.2373268777614,
+            8.232620022762973
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "20",
+        "v": "1",
+        "cost_m": 6.42
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23737204917173,
+            8.232464526775827
+          ],
+          [
+            124.23732806769974,
+            8.23242657906238
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "1",
+        "v": "2",
+        "cost_m": 14.54
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23732806769974,
+            8.23242657906238
+          ],
+          [
+            124.23732130132022,
+            8.232295994277308
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "2",
+        "v": "I5",
+        "cost_m": 25.09
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23732130132022,
+            8.232295994277308
+          ],
+          [
+            124.23719722815292,
+            8.232106719000768
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "I4",
+        "v": "25",
+        "cost_m": 29.18
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.2373268777614,
+            8.232620022762973
+          ],
+          [
+            124.23739565946967,
+            8.232873437012142
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "22",
+        "v": "23",
+        "cost_m": 18.34
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23750512130206,
+            8.232619665894093
+          ],
+          [
+            124.23756061531805,
+            8.232775218028603
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "23",
+        "v": "24",
+        "cost_m": 16.18
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23756061531805,
+            8.232775218028603
+          ],
+          [
+            124.23764644600239,
+            8.23289334626051
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "24",
+        "v": "I8",
+        "cost_m": 13.44
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23764644600239,
+            8.23289334626051
+          ],
+          [
+            124.23774860696074,
+            8.232959508482978
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "I8",
+        "v": "I7",
+        "cost_m": 25.02
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23774860696074,
+            8.232959508482978
+          ],
+          [
+            124.2379137973727,
+            8.233114159228975
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "25",
+        "v": "I3",
+        "cost_m": 13.56
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23739565946967,
+            8.232873437012142
+          ],
+          [
+            124.23742579527777,
+            8.232991673001223
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "I3",
+        "v": "26",
+        "cost_m": 17.9
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23742579527777,
+            8.232991673001223
+          ],
+          [
+            124.23726557233879,
+            8.233019438156305
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "I3",
+        "v": "27",
+        "cost_m": 9.03
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23742579527777,
+            8.232991673001223
+          ],
+          [
+            124.23745600916959,
+            8.233067220337238
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "27",
+        "v": "28",
+        "cost_m": 14.35
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23745600916959,
+            8.233067220337238
+          ],
+          [
+            124.23750283839337,
+            8.233187702147957
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "28",
+        "v": "29",
+        "cost_m": 17.23
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23750283839337,
+            8.233187702147957
+          ],
+          [
+            124.23752966048222,
+            8.233340339585341
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "29",
+        "v": "I2",
+        "cost_m": 13.34
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23752966048222,
+            8.233340339585341
+          ],
+          [
+            124.23760531225014,
+            8.23343402697681
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "I2",
+        "v": "I1",
+        "cost_m": 33.21
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23760531225014,
+            8.23343402697681
+          ],
+          [
+            124.23777017477659,
+            8.233684210563965
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "21",
+        "v": "I4",
+        "cost_m": 12.99
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23744196842667,
+            8.232593995396707
+          ],
+          [
+            124.2373268777614,
+            8.232620022762973
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "BLOCK": 5,
+        "type": "edge",
+        "u": "21",
+        "v": "22",
+        "cost_m": 7.51
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            124.23744196842667,
+            8.232593995396707
+          ],
+          [
+            124.23750512130206,
+            8.232619665894093
+          ]
+        ]
+      }
+    },
+    {
+  "type": "Feature",
+  "properties": { "BLOCK": 5, "type": "edge", "u": "34", "v": "33", "cost_m": 0 },
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [124.23810097098347, 8.232875790682476],
+      [124.23808219552129, 8.233007191713854]
+    ]
+  }
+},
+{
+  "type": "Feature",
+  "properties": { "BLOCK": 5, "type": "edge", "u": "34", "v": "14", "cost_m": 0 },
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [124.23810097098347, 8.232875790682476],
+      [124.23812988370051, 8.23268105186145]
+    ]
+  }
+}
+  ]
+}
+
+    // Map init
+    const map = L.map("map");
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 20,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    // Helper: create a numbered DivIcon
+    function numberedIcon(label, cls) {
+      return L.divIcon({
+        className: "",
+        html: `<div class="num-marker ${cls}">${label}</div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+        popupAnchor: [0, -14]
+      });
+    }
+
+    const polesLayer = L.layerGroup().addTo(map);
+    const intersectionsLayer = L.layerGroup().addTo(map);
+    const edgesLayer = L.layerGroup().addTo(map);
+
+    const pointLatLngs = [];
+
+    // Add markers and edges
+    geojson.features.forEach(f => {
+      const geomType = f.geometry && f.geometry.type;
+
+      if (geomType === "Point") {
+        const [lon, lat] = f.geometry.coordinates;
+        pointLatLngs.push([lat, lon]);
+
+        const id = f.properties.id;
+        const isIntersection = f.properties.kind === "intersection";
+
+        const marker = L.marker([lat, lon], {
+          icon: numberedIcon(String(id), isIntersection ? "intersection" : "pole")
+        });
+
+        marker.bindPopup(
+          `<b>ID:</b> ${id}<br>` +
+          `<b>Block:</b> ${f.properties.BLOCK}<br>` +
+          `<b>Type:</b> ${isIntersection ? "intersection" : "pole"}<br>` +
+          `<b>Lat:</b> ${lat}<br>` +
+          `<b>Lon:</b> ${lon}`
+        );
+
+        (isIntersection ? intersectionsLayer : polesLayer).addLayer(marker);
+        return;
+      }
+
+      if (geomType === "LineString" && f.properties && f.properties.type === "edge") {
+        const latlngs = f.geometry.coordinates.map(([lon, lat]) => [lat, lon]);
+        latlngs.forEach(ll => pointLatLngs.push(ll));
+
+        const u = f.properties.u;
+        const v = f.properties.v;
+        const cost = f.properties.cost_m;
+
+        const line = L.polyline(latlngs, {
+          weight: 4,
+          opacity: 0.9
+        });
+
+        line.bindPopup(
+          `<b>Edge:</b> ${u} → ${v}<br>` +
+          `<b>Cost (m):</b> ${cost}`
+        );
+
+        edgesLayer.addLayer(line);
+        return;
+      }
+    });
+
+    // Fit bounds to all geometries (points + edges)
+    if (pointLatLngs.length) {
+      const bounds = L.latLngBounds(pointLatLngs);
+      map.fitBounds(bounds.pad(0.2));
+    } else {
+      map.setView([8.2317, 124.2392], 18);
+    }
+
+    // Layer toggle
+    L.control.layers(null, {
+      "Poles": polesLayer,
+      "Intersections": intersectionsLayer,
+      "Edges": edgesLayer
+    }, { collapsed: false }).addTo(map);
+  </script>
+</body>
+</html>
